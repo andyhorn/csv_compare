@@ -78,6 +78,14 @@ def get_header(val):
     return val
 
 
+def has_header(val):
+    if can_parse_int(val):
+        val = int(val)
+        return val < len(HEADERS)
+
+    return val in HEADERS
+
+
 def find_all_differences():
     headers = get_headers()
 
@@ -104,9 +112,18 @@ def find_all_similarities():
         row[SIMILARITIES_HEADER] = ITEM_DELIMITER.join(similarities)
 
 
+def ensure_headers():
+    for target in TARGETS:
+        if not has_header(target):
+            print(f'File does not have the \'{target}\' column')
+            sys.exit(2)
+
+
 def main():
     print('File:', PATH)
     read_csv()
+
+    ensure_headers()
 
     print('Detecting differences...')
     find_all_differences()
