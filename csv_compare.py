@@ -8,14 +8,11 @@ HEADERS = []
 ROWS = []
 DIFFERENCES = []
 TARGETS = []
+TARGET_IS_STRING = False
 
-DIFFERENCES_HEADER = 'Differences'
-SIMILARITIES_HEADER = 'Similarities'
-ITEM_DELIMITER = ' '
-
-
-def header(num):
-    return HEADERS[TARGETS[num]]
+DIFFERENCES_HEADER = 'x_Differences'
+SIMILARITIES_HEADER = 'x_Similarities'
+ITEM_DELIMITER = ';'
 
 
 def read_csv():
@@ -69,10 +66,24 @@ def write_results():
         writer.writerows(ROWS)
 
 
+def get_headers():
+    return [get_header(TARGETS[0]), get_header(TARGETS[1])]
+
+
+def get_header(val):
+    if can_parse_int(val):
+        col = HEADERS[int(val)]
+        return col
+
+    return val
+
+
 def find_all_differences():
+    headers = get_headers()
+
     for row in ROWS:
-        left = row[header(0)]
-        right = row[header(1)]
+        left = row[headers[0]]
+        right = row[headers[1]]
 
         differences = find_difference(left, right)
         differences.extend([x for x in find_difference(right, left) if x not in differences])
@@ -81,9 +92,11 @@ def find_all_differences():
 
 
 def find_all_similarities():
+    headers = get_headers()
+
     for row in ROWS:
-        left = row[header(0)]
-        right = row[header(1)]
+        left = row[headers[0]]
+        right = row[headers[1]]
 
         similarities = find_similarities(left, right)
         similarities.extend([x for x in find_similarities(right, left) if x not in similarities])
@@ -92,13 +105,13 @@ def find_all_similarities():
 
 
 def main():
-    print('Reading file:', PATH)
+    print('File:', PATH)
     read_csv()
 
-    print('Scanning for column differences...')
+    print('Detecting differences...')
     find_all_differences()
 
-    print('Scanning for column similarities...')
+    print('Detecting similarities...')
     find_all_similarities()
 
     print('Writing results...')
@@ -112,8 +125,17 @@ def print_usage():
     print('\tex: csv_compare.py /path/to/file.csv -c 4,5')
 
 
+def can_parse_int(val):
+    try:
+        int(val)
+        return True
+    except ValueError:
+        return False
+
+
 def parse_args(args):
     global TARGETS
+    global TARGET_IS_STRING
     global PATH
 
     if not len(args) > 1:
@@ -126,8 +148,6 @@ def parse_args(args):
     if not os.path.exists(PATH):
         print('Could not find file: ', PATH)
         sys.exit(1)
-
-    print(args[1:])
 
     try:
         options, arguments = getopt.getopt(args[1:], "hc:", ["cols="])
@@ -144,7 +164,8 @@ def parse_args(args):
                 print_usage()
                 sys.exit(2)
             else:
-                TARGETS = [int(x) for x in arg.split(',')]
+                TARGETS = arg.split(',')
+                print(f'Comparing column \'{TARGETS[0]}\' to column \'{TARGETS[1]}\'')
         else:
             print('Invalid option: ', opt)
             print_usage()
