@@ -4,7 +4,7 @@ import sys
 HEADERS = []
 ROWS = []
 DIFFERENCES = []
-TARGETS = ['five', 'six']
+TARGETS = []
 
 DIFFERENCES_HEADER = 'Differences'
 SIMILARITIES_HEADER = 'Similarities'
@@ -18,6 +18,8 @@ def read_csv(path):
     with open(path) as file:
         reader = csv.DictReader(file, delimiter=',')
         HEADERS = reader.fieldnames
+        TARGETS.append(HEADERS[4])
+        TARGETS.append(HEADERS[5])
         for row in reader:
             ROWS.append(row)
 
