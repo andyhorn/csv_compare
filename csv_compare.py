@@ -136,8 +136,6 @@ def parse_args(args):
         sys.exit(2)
 
     for opt, arg in options:
-        print(opt)
-        print(arg)
         if opt == '-h':
             print_usage()
             sys.exit()
@@ -148,7 +146,9 @@ def parse_args(args):
             else:
                 TARGETS = [int(x) for x in arg.split(',')]
         else:
-            print('Invalid argument: ', opt)
+            print('Invalid option: ', opt)
+            print_usage()
+            sys.exit(2)
 
 
 if __name__ == '__main__':
