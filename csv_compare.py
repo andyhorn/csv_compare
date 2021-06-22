@@ -1,5 +1,6 @@
 import csv
 import sys
+import os
 
 HEADERS = []
 ROWS = []
@@ -23,32 +24,22 @@ def read_csv(path):
         for row in reader:
             ROWS.append(row)
 
-    print(HEADERS)
-    print(ROWS)
-
 
 def prep_line(line):
     return line.lower().replace('_', ' ').split()
 
 
 def find_difference(left, right):
-    print('finding difference between:')
-    print(left)
-    print(right)
     left = prep_line(left)
     right = prep_line(right)
     differences = []
     for word in left:
         if word not in right and word not in differences:
             differences.append(word)
-    print(differences)
     return differences
 
 
 def find_similarities(left, right):
-    print('finding similarities between:')
-    print(left)
-    print(right)
     left = prep_line(left)
     right = prep_line(right)
     similarities = []
@@ -56,7 +47,6 @@ def find_similarities(left, right):
     for word in left:
         if word in right and word not in similarities:
             similarities.append(word)
-    print(similarities)
     return similarities
 
 
@@ -99,11 +89,24 @@ def find_all_similarities():
 
 def main():
     path = sys.argv[1]
-    print('finding differences in file:', path)
+    if not os.path.exists(path):
+        print('Could not find file: ', path)
+        return
+
+    print('Reading file:', path)
     read_csv(path)
+
+    print('Scanning for column differences...')
     find_all_differences()
+
+    print('Scanning for column similarities...')
     find_all_similarities()
+
+    print('Writing results...')
     write_results(path)
 
+    print('Done!')
 
-main()
+
+if __name__ == '__main__':
+    main()
